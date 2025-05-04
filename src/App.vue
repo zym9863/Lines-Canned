@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import InstallPWA from './components/InstallPWA.vue';
 
 const generatedText = ref('');
 const isLoading = ref(false);
@@ -75,6 +76,8 @@ function copyToClipboard() {
       <h1>✨ 台词罐头</h1>
       <p class="subtitle">AI 生成的专属话术，让表达更有趣</p>
     </div>
+
+    <InstallPWA />
 
     <div class="button-group">
       <button

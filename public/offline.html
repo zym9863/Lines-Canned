@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台词罐头 - 离线模式</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #333;
+    }
+    .container {
+      max-width: 500px;
+      padding: 30px;
+      border-radius: 16px;
+      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(120deg, #8e2de2, #4a00e0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .emoji {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(120deg, #8e2de2, #4a00e0);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(142, 45, 226, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="emoji">📶</div>
+    <h1>您已离线</h1>
+    <p>看起来您的网络连接已断开。请检查您的网络连接并重试。</p>
+    <a href="/" class="button">刷新页面</a>
+  </div>
+  <script>
+    // Check if we're back online and reload the page
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>
