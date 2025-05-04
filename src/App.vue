@@ -6,17 +6,27 @@ const isLoading = ref(false);
 const errorMessage = ref('');
 const activeButton = ref<'insult' | 'confession' | null>(null);
 
-async function generateText(type: 'insult' | 'confession') {
+async function generateText(type: 'insult' | 'confession', isRegenerate: boolean = false) {
   isLoading.value = true;
   errorMessage.value = '';
-  generatedText.value = '';
-  activeButton.value = type;
-  
+
+  // Only clear text and set active button if not regenerating
+  if (!isRegenerate) {
+    generatedText.value = '';
+    activeButton.value = type;
+  } else {
+    // For regeneration, we keep the current activeButton value
+    type = activeButton.value as 'insult' | 'confession';
+  }
+
   try {
-    const prompt = type === 'insult' 
-      ? '生成一段幽默的怼人话术，语言要诙谐有趣' 
+    const prompt = type === 'insult'
+      ? '生成一段幽默的怼人话术，语言要诙谐有趣'
       : '生成一段浪漫的表白话术，语言要优美动人';
-    
+
+    // Add a random seed to ensure different results each time
+    const randomSeed = Math.floor(Math.random() * 10000);
+
     const response = await fetch('https://text.pollinations.ai/', {
       method: 'POST',
       headers: {
@@ -24,17 +34,17 @@ async function generateText(type: 'insult' | 'confession') {
       },
       body: JSON.stringify({
         messages: [
-          { role: 'user', content: prompt }
+          { role: 'user', content: `${prompt} (seed: ${randomSeed})` }
         ],
         model: 'gemini',
         private: true
       })
     });
-    
+
     if (!response.ok) {
       throw new Error(`请求失败: ${response.status}`);
     }
-    
+
     const data = await response.text();
     generatedText.value = data;
   } catch (error) {
@@ -47,7 +57,7 @@ async function generateText(type: 'insult' | 'confession') {
 
 function copyToClipboard() {
   if (!generatedText.value) return;
-  
+
   navigator.clipboard.writeText(generatedText.value)
     .then(() => {
       alert('已复制到剪贴板！');
@@ -65,20 +75,20 @@ function copyToClipboard() {
       <h1>✨ 台词罐头</h1>
       <p class="subtitle">AI 生成的专属话术，让表达更有趣</p>
     </div>
-    
+
     <div class="button-group">
-      <button 
-        @click="generateText('insult')" 
-        :disabled="isLoading" 
+      <button
+        @click="generateText('insult')"
+        :disabled="isLoading"
         class="action-btn insult-btn"
         :class="{ 'loading': isLoading && activeButton === 'insult' }"
       >
         <span class="icon">🎭</span>
         {{ isLoading && activeButton === 'insult' ? '生成中...' : '生成怼人话术' }}
       </button>
-      <button 
-        @click="generateText('confession')" 
-        :disabled="isLoading" 
+      <button
+        @click="generateText('confession')"
+        :disabled="isLoading"
         class="action-btn confession-btn"
         :class="{ 'loading': isLoading && activeButton === 'confession' }"
       >
@@ -86,21 +96,27 @@ function copyToClipboard() {
         {{ isLoading && activeButton === 'confession' ? '生成中...' : '生成表白话术' }}
       </button>
     </div>
-    
+
     <div v-if="errorMessage" class="error-message">
       <span class="icon">⚠️</span>
       {{ errorMessage }}
     </div>
-    
+
     <div v-if="generatedText" class="result-container">
       <h2>✨ 生成结果</h2>
       <div class="text-content">
         <p>{{ generatedText }}</p>
       </div>
-      <button @click="copyToClipboard()" class="action-btn copy-btn">
-        <span class="icon">📋</span>
-        复制到剪贴板
-      </button>
+      <div class="result-buttons">
+        <button @click="generateText(activeButton as 'insult' | 'confession', true)" class="action-btn regenerate-btn" :disabled="isLoading">
+          <span class="icon">🔄</span>
+          {{ isLoading ? '重新生成中...' : '重新生成' }}
+        </button>
+        <button @click="copyToClipboard()" class="action-btn copy-btn">
+          <span class="icon">📋</span>
+          复制到剪贴板
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -122,7 +138,9 @@ function copyToClipboard() {
   margin-bottom: 0.5rem;
   background: linear-gradient(120deg, #6a11cb, #2575fc);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -176,6 +194,17 @@ function copyToClipboard() {
 .copy-btn {
   background: linear-gradient(120deg, #43a047, #2e7d32);
   color: white;
+}
+
+.regenerate-btn {
+  background: linear-gradient(120deg, #9c27b0, #673ab7);
+  color: white;
+}
+
+.result-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .result-container {
@@ -265,12 +294,13 @@ function copyToClipboard() {
     --color-card-bg: rgba(255, 255, 255, 0.9);
     --color-content-bg: rgba(0, 0, 0, 0.03);
   }
-  
+
   .header h1 {
     background: linear-gradient(120deg, #8e2de2, #4a00e0);
     -webkit-background-clip: text;
+    background-clip: text;
   }
-  
+
   .result-container {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
   }
